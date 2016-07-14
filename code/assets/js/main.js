@@ -5,7 +5,7 @@ var app = (function () {
 
     app = {
         init: function () {
-            var view3d, floor, grid, grid2;
+            var view3d, floor, particleRing, particleRing2, buttons;
 
             view3d = new View3d();
 
@@ -14,29 +14,52 @@ var app = (function () {
             });
             floor.draw();
 
-            grid = new Grid({
+            particleRing = new ParticleRing({
                 scene: view3d,
-                x: -30,
-                y: 20,
-                z: -100,
-                cubeSize: 5,
+                x: -15,
+                y: 10,
+                z: -40,
+                size: 10,
                 data: {
-                    total: 30
+                    total: 10
                 }
             });
-            grid.draw();
+            particleRing.draw();
 
-            grid2 = new Grid({
+            particleRing2 = new ParticleRing({
                 scene: view3d,
-                x: 30,
-                y: 20,
-                z: -100,
-                cubeSize: 5,
+                x: 15,
+                y: 10,
+                z: -40,
+                size: 10,
                 data: {
-                    total: 20
+                    total: 5
                 }
             });
-            grid2.draw();
+            particleRing2.draw();
+
+            buttons = new Buttons({
+                scene: view3d,
+                controls: [
+                    function () {
+                        particleRing.updateData(5);
+                        particleRing2.updateData(6);
+                    },
+                    function () {
+                        particleRing.updateData(2);
+                        particleRing2.updateData(7);
+                    },
+                    function () {
+                        particleRing.updateData(8);
+                        particleRing2.updateData(12);
+                    },
+                    function () {
+                        particleRing.updateData(15);
+                        particleRing2.updateData(22);
+                    }
+                ]
+            });
+            buttons.draw();
         }
     };
 
@@ -45,5 +68,5 @@ var app = (function () {
 })();
 
 $(document).ready(function () {
-    app.init();
+    objects.load(app.init);
 });

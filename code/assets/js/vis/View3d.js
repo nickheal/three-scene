@@ -18,7 +18,6 @@ var View3d = (function () {
 		HEIGHT = window.innerHeight;
 		WIDTH = window.innerWidth;
 
-		this.clickTargets = [];
 		this.scene = new THREE.Scene();
 
 		this.scene.fog = new THREE.Fog(0xf7d9aa, 100, 950);
@@ -83,44 +82,71 @@ var View3d = (function () {
 		clickVector = new THREE.Vector3();
 		raycaster = new THREE.Raycaster();
 
-		$document.on('mousemove', function (e) {
-			var intersects;
+		// $document.on('mousemove', function (e) {
+		// 	var intersects;
 
-			clickVector.set((e.clientX / window.innerWidth) * 2 - 1, - (e.clientY / window.innerHeight) * 2 + 1, 0.5);
-			clickVector.unproject(this.camera);
-			raycaster.set(this.camera.position, clickVector.sub(this.camera.position).normalize());
-			intersects = raycaster.intersectObjects(this.clickTargets);
+		// 	clickVector.set((e.clientX / window.innerWidth) * 2 - 1, - (e.clientY / window.innerHeight) * 2 + 1, 0.5);
+		// 	clickVector.unproject(this.camera);
+		// 	raycaster.set(this.camera.position, clickVector.sub(this.camera.position).normalize());
+		// 	intersects = raycaster.intersectObjects(this.scene.children);
 
-			if (intersects.length) {
-				intersects.sort(function (a, b) {
-					return a.distance - b.distance;
-				});
-				if (this.activeObjects !== intersects[0].object) {
-					if (this.activeObjects) {
-						this.activeObjects.mouseOut && this.activeObjects.mouseOut();
-					}
-					intersects[0].object.mouseOver && intersects[0].object.mouseOver();
-					this.activeObjects = intersects[0].object;
-				}
-			} else if (this.activeObjects) {
-				this.activeObjects.mouseOut && this.activeObjects.mouseOut();
-				this.activeObjects = null;
-			}
-		}.bind(this));
+		// 	if (intersects.length) {
+		// 		intersects.sort(function (a, b) {
+		// 			return a.distance - b.distance;
+		// 		});
+		// 		if (this.activeObjects !== intersects[0].object) {
+		// 			if (this.activeObjects) {
+		// 				this.activeObjects.mouseOut && this.activeObjects.mouseOut();
+		// 			}
+		// 			intersects[0].object.mouseOver && intersects[0].object.mouseOver();
+		// 			this.activeObjects = intersects[0].object;
+		// 		}
+		// 	} else if (this.activeObjects) {
+		// 		this.activeObjects.mouseOut && this.activeObjects.mouseOut();
+		// 		this.activeObjects = null;
+		// 	}
+		// }.bind(this));
 
 		$document.on('click', function (e) {
-			var intersects;
+			var intersects, objects, targetObject, clickFound;
+
+			objects = [];
+			this.scene.traverse(function (object) {
+			    if (object instanceof THREE.Mesh) {
+			       objects.push(object);
+			    }
+			    if (object instanceof THREE.Group) {
+			       object.traverse(function (innerObject) {
+			       		if (innerObject instanceof THREE.Mesh) {
+			       			objects.push(innerObject);
+			       		}
+			       });
+			    }
+			});
 
 			clickVector.set((e.clientX / window.innerWidth) * 2 - 1, - (e.clientY / window.innerHeight) * 2 + 1, 0.5);
 			clickVector.unproject(this.camera);
 			raycaster.set(this.camera.position, clickVector.sub(this.camera.position).normalize());
-			intersects = raycaster.intersectObjects(this.clickTargets);
+			intersects = raycaster.intersectObjects(objects);
 
 			if (intersects.length) {
 				intersects.sort(function (a, b) {
 					return a.distance - b.distance;
 				});
-				intersects[0].object.click && intersects[0].object.click();
+
+				targetObject = intersects[0].object;
+				while (!clickFound) {
+					if (targetObject.click) {
+						targetObject.click()
+						clickFound = true;
+					} else {
+						if (targetObject.parent) {
+							targetObject = targetObject.parent;
+						} else {
+							clickFound = true;
+						}
+					}
+				}
 			}
 		}.bind(this));
     }

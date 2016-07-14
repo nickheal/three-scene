@@ -10,8 +10,8 @@ module.exports = function (grunt) {
             },
             dist: {
                 src: [
-                    'code/assets/js/*/*/*.js',
                     'code/assets/js/*/*.js',
+                    'code/assets/js/*/*/*.js',
                     'code/assets/js/*.js'
                 ],
                 dest: 'code/assets/js.min/production.js'
@@ -51,9 +51,9 @@ module.exports = function (grunt) {
                 }
             },
             sass: {
-                files: ['scss/*/*.scss',
-                        'scss/*.scss'],
-                tasks: ['scss'],
+                files: ['code/assets/scss/*/*.scss',
+                        'code/assets/scss/*.scss'],
+                tasks: ['sass'],
                 options: {
                     spawn: false
                 }
